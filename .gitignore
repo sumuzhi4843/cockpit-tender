@@ -1,0 +1,27 @@
+# ---- 数据与数据库(真实招投标数据,不入库) ----
+*.db
+*.db-shm
+*.db-wal
+data/
+tender.json
+reports/
+
+# ---- 日志与运行时 ----
+*.log
+*.log.*
+logs/
+cron.lock
+9
+
+# ---- Python ----
+__pycache__/
+*.pyc
+
+# ---- 备份/临时/测试 ----
+*.bak
+*.bak-*
+fc_test2.html
+
+# ---- 脱敏:平台逆向分析笔记不入公开库 ----
+SUFUCAI_FINDING.md
+SUFUCAI_AREA_CODE_REFACTOR.md
