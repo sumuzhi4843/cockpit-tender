@@ -1,0 +1,125 @@
+/* ============================================
+ * 运营商中标动态栏 v1（2026-08-13 框架搭建；更名自“项目经验信息栏”）
+ * 数据源：企查查 MCP（qcc-tender）
+ * 前缀：exp-（与 tender- / ent- 隔离）
+ * ============================================ */
+
+.exp-wrap { padding: 4px 2px; }
+
+/* —— 子导航（2026-08-13）—— */
+.exp-subnav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.exp-subnav__btn {
+  border: 1px solid var(--color-border); background: var(--color-card); color: var(--color-text-muted);
+  border-radius: 8px; padding: 7px 16px; font-size: 13px; cursor: pointer; transition: all .15s;
+}
+.exp-subnav__btn--active {
+  background: #1d6fe0; border-color: #1d6fe0; color: #fff; font-weight: 600;
+}
+.exp-subnav__meta { font-size: 12px; color: var(--color-text-muted); margin-left: auto; }
+
+/* —— 头部 —— */
+.exp-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.exp-head__brand { display: flex; gap: 10px; align-items: center; }
+.exp-head__icon { font-size: 26px; }
+.exp-head__title { font-size: 18px; font-weight: 700; color: var(--color-text); line-height: 1.4; }
+.exp-head__sub { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
+.exp-head__meta { font-size: 12px; color: var(--color-text-muted); }
+
+/* —— 汇总卡 —— */
+.exp-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.exp-kpi__card {
+  background: var(--color-card); border: 1px solid var(--color-border);
+  border-radius: 12px; padding: 14px 16px;
+}
+.exp-kpi__card--primary { background: linear-gradient(135deg, #eef4fe, #e3edfc); border-color: #cdddf5; }
+.exp-kpi__label { display: block; font-size: 12px; color: var(--color-text-muted); margin-bottom: 6px; }
+.exp-kpi__value { display: block; font-size: 22px; font-weight: 700; color: var(--color-text); }
+.exp-kpi__sub { display: block; font-size: 11px; color: var(--color-text-muted); margin-top: 4px; }
+
+/* —— 筛选栏 —— */
+.exp-filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.exp-select {
+  padding: 7px 10px; border: 1px solid var(--color-border); border-radius: 8px;
+  background: var(--color-card); color: var(--color-text); font-size: 13px;
+}
+.exp-search-wrap { flex: 1; min-width: 180px; }
+.exp-search {
+  width: 100%; padding: 7px 12px; border: 1px solid var(--color-border);
+  border-radius: 8px; background: var(--color-card); color: var(--color-text); font-size: 13px;
+}
+.exp-clear {
+  border: 1px solid #e2b3b3; background: #fdf0f0; color: #c0392b;
+  border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+}
+
+/* —— 列表 —— */
+.exp-list-meta { font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; }
+.exp-tbl-wrap { border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; }
+.exp-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.exp-tbl th {
+  background: var(--color-bg-secondary, #f5f7fa); color: var(--color-text-muted);
+  font-weight: 600; font-size: 12px; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border); white-space: nowrap;
+}
+.exp-tbl td { padding: 9px 12px; border-bottom: 1px solid var(--color-border); color: var(--color-text); vertical-align: middle; }
+.exp-tbl tr:last-child td { border-bottom: none; }
+.exp-tbl tr:hover td { background: var(--color-bg-hover, #f8fafc); }
+.exp-tbl__idx { color: var(--color-text-muted); width: 48px; }
+.exp-tbl__name { max-width: 340px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.exp-tbl__num { text-align: right; white-space: nowrap; }
+
+/* —— 分页 —— */
+.exp-pager { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 12px; }
+.exp-pager__btn {
+  border: 1px solid var(--color-border); background: var(--color-card); color: var(--color-text);
+  border-radius: 8px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+}
+.exp-pager__btn:disabled { opacity: .4; cursor: not-allowed; }
+.exp-pager__info { font-size: 12px; color: var(--color-text-muted); }
+
+/* —— 空状态 —— */
+.exp-empty { text-align: center; padding: 60px 20px; color: var(--color-text-muted); }
+.exp-empty__icon { font-size: 40px; margin-bottom: 12px; }
+.exp-empty__title { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 6px; }
+.exp-empty__hint { font-size: 13px; }
+
+/* —— 中标明细弹窗（2026-08-13）—— */
+.exp-modal { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 20px; }
+.exp-modal__backdrop { position: absolute; inset: 0; background: rgba(15, 32, 54, .55); }
+.exp-modal__panel {
+  position: relative; background: var(--color-card); border-radius: 14px;
+  max-width: 620px; width: 100%; max-height: 84vh; overflow-y: auto;
+  padding: 26px 28px; box-shadow: 0 20px 60px rgba(13, 43, 78, .3);
+}
+.exp-modal__close {
+  position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+  border: none; background: #eef2f7; border-radius: 50%; cursor: pointer;
+  font-size: 14px; color: var(--color-text-muted);
+}
+.exp-modal__close:hover { background: #e2e8f0; color: var(--color-text); }
+.exp-detail__tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.exp-detail__tag {
+  font-size: 12px; padding: 3px 10px; border-radius: 999px;
+  background: #eef2f7; color: var(--color-text-muted);
+}
+.exp-detail__tag--op { background: #e3edfc; color: #1a5cb5; }
+.exp-detail__tag--ind { background: #eaf7ef; color: #1e7a46; }
+.exp-detail__title { margin: 0 0 16px; font-size: 17px; line-height: 1.5; color: var(--color-text); }
+.exp-detail__row { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--color-border); font-size: 13px; }
+.exp-detail__row:last-child { border-bottom: none; }
+.exp-detail__k { flex: 0 0 80px; color: var(--color-text-muted); }
+.exp-detail__v { flex: 1; color: var(--color-text); word-break: break-all; }
+
+/* 行可点击提示 */
+.exp-row { cursor: pointer; }
+.exp-row:hover td { background: var(--color-bg-hover, #f8fafc); }
+
+/* —— 响应式 —— */
+@media (max-width: 768px) {
+  .exp-kpi { grid-template-columns: repeat(2, 1fr); }
+  .exp-tbl-wrap { overflow-x: auto; }
+  .exp-tbl { min-width: 720px; }
+}

@@ -1,0 +1,69 @@
+/* ====== 板块容器 ====== */
+
+.panel {
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--gap-lg);
+  overflow: hidden;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px var(--gap-md);
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(180deg, #ffffff 0%, var(--color-bg-soft) 100%);
+}
+
+.panel__title {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.panel__title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.panel__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.panel__body {
+  padding: var(--gap-md);
+}
+
+/* 2026-08-18 v3：移动端 panel 内边距随屏宽缩放 */
+@media (max-width: 768px) {
+  .panel__body { padding: clamp(8px, 2.4vw, 12px); }
+  .panel__head { padding: clamp(6px, 1.8vw, 10px) clamp(8px, 2.4vw, 12px); }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  .panel__body { padding: clamp(10px, 2.6vw, 14px); }
+}
+
+/* 2026-08-18 v4：平板 panel —— 宽松整理 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .panel { margin-bottom: clamp(14px, 1.8vw, 18px); }
+  .panel__body { padding: clamp(14px, 2vw, 18px); }
+  .panel__head { padding: clamp(10px, 1.6vw, 14px) clamp(14px, 2vw, 18px); }
+  .panel__title { font-size: clamp(15px, 1.8vw, 17px); }
+  .panel__hint { font-size: clamp(12px, 1.6vw, 13px); }
+}
+@media (min-width: 1025px) and (max-width: 1365px) {
+  .panel { margin-bottom: clamp(14px, 1.4vw, 18px); }
+  .panel__body { padding: clamp(14px, 1.4vw, 18px); }
+  .panel__head { padding: clamp(10px, 1.2vw, 14px) clamp(16px, 1.6vw, 20px); }
+}
+

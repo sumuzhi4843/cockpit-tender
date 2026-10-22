@@ -1,0 +1,21 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cockpit:latest
+    container_name: cockpit
+    ports:
+      - "5310:80"
+    restart: unless-stopped
+
+  # 维护手册站（独立展示，2026-08-09）
+  manual:
+    build:
+      context: ./manual
+      dockerfile: Dockerfile
+    image: cockpit-manual:latest
+    container_name: cockpit-manual
+    ports:
+      - "5311:80"
+    restart: unless-stopped

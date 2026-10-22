@@ -1,0 +1,82 @@
+/* ============================================
+ * 2026-08-18 v4 · 折叠屏识别 + 渐进增强
+ * ============================================
+ * 折叠屏手机（Galaxy Z Fold / Pixel Fold / Mate X）展开后，
+ * 浏览器会报告 `screen-spanning: single-fold-vertical` 或
+ * `single-fold-horizontal`，折叠处可能是软件黑条或被识别为断点。
+ *
+ * 本 CSS 作为渐进增强：
+ *   - 支持的浏览器（Chrome 111+ / Samsung Internet）走平板分栏
+ *   - 不支持的浏览器自动忽略，回退到普通断点体系
+ *
+ * JS hook（main.js / app.js）：
+ *   - 通过 window.getScreenDetails() 检测 fold，给 body 加
+ *     data-foldable="vertical" / "horizontal"，CSS 可据此布局
+ * ============================================ */
+
+/* 折叠屏竖向展开：左主区 + 右侧详情/筛选区 */
+@media (screen-spanning: single-fold-vertical) {
+  body { background-attachment: fixed; }
+  /* 顶部栏 + tabs 跨整宽 */
+  .cockpit > .topbar,
+  .cockpit > .tabs {
+    /* 折叠屏分栏时主区宽度为 fold 左侧，右侧放补充信息 */
+  }
+  /* 平板主区强制卡片 3 列（与 768~1024 区间一致） */
+  .tender-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .tender-cardlist,
+  .ent-cardlist {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(10px, 1.2vw, 14px);
+  }
+  .exp-kpi,
+  .ent-kpi,
+  .kpi { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+
+  /* 弹窗：避免跨折叠处 */
+  .tender-district-modal,
+  .tender-sites-modal,
+  .ent-modal,
+  .exp-modal {
+    align-items: flex-start;
+    padding-top: clamp(20px, 6vh, 40px);
+  }
+}
+
+/* 折叠屏横向展开（笔记本形态）：上下分栏 */
+@media (screen-spanning: single-fold-horizontal) {
+  .cockpit { /* 折叠处将上下分割，上为汇总/筛选，下为列表 */ }
+  .kpi,
+  .exp-kpi,
+  .ent-kpi { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .tender-cardlist,
+  .ent-cardlist {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: clamp(10px, 1.2vw, 14px);
+  }
+}
+
+/* 折叠屏分栏态：JS 注入 body[data-foldable="vertical"] 时 */
+/* 左侧主区宽度 = 折叠处 x，右侧放筛选/摘要 */
+body[data-foldable="vertical"] .cockpit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(14px, 2vw, 20px);
+  max-width: 1600px;
+  margin: 0 auto;
+}
+body[data-foldable="vertical"] .cockpit > .topbar,
+body[data-foldable="vertical"] .cockpit > .tabs,
+body[data-foldable="vertical"] .cockpit > #app-mount {
+  grid-column: 1 / -1;
+}
+
+/* 折叠屏 + 桌面包围模式（已用 dual-screen） */
+@media (screen-spanning: single-fold-vertical) {
+  /* 利用 env(fold-left) / env(fold-top) 定义安全区 */
+  .panel {
+    padding-left: max(env(fold-left, 0px), 0px);
+  }
+}

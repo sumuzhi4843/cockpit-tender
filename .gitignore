@@ -2,13 +2,16 @@
 *.db
 *.db-shm
 *.db-wal
+*.db.bak-*
 data/
 tender.json
 reports/
+site/screen/data/
 
 # ---- 日志与运行时 ----
 *.log
 *.log.*
+*.gz
 logs/
 cron.lock
 9
@@ -20,7 +23,26 @@ __pycache__/
 # ---- 备份/临时/测试 ----
 *.bak
 *.bak-*
+*.orig
+backups/
+archive/
+screenshots/
+daily/
+*.tmp
 fc_test2.html
+
+# ---- 凭据与账号(不入公开库) ----
+htpasswd
+htpasswd-*
+.htpasswd
+*.htpasswd
+.env
+.env.*
+!.env.example
+
+# ---- 三方库(可按需从 CDN 取) ----
+*.min.js
+vendor/
 
 # ---- 脱敏:平台逆向分析笔记不入公开库 ----
 SUFUCAI_FINDING.md

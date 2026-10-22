@@ -1,0 +1,173 @@
+/* 盐城政企招投标监控中心 · 大屏样式（浅色移动蓝，对齐 5310 cockpit token）
+   设计稿 1920×1080，JS 等比缩放适配 */
+:root {
+  color-scheme: light;
+  --primary: #00467f;          /* 移动蓝 */
+  --primary-deep: #003560;
+  --accent: #e60012;           /* 强调红 */
+  --ok: #16a34a;
+  --warn: #ea580c;
+  --teal: #0f766e;
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --line: #d8e0ea;
+  --fg: #172033;
+  --muted: #5b6475;
+  --shadow: 0 2px 10px rgba(0, 70, 127, 0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.45 ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 1920×1080 固定画布，JS scale */
+#stage {
+  width: 1920px; height: 1080px;
+  transform-origin: 0 0;
+  display: flex; flex-direction: column;
+  padding: 14px 18px 16px;
+  gap: 12px;
+}
+
+/* ===== 顶栏 ===== */
+.header {
+  height: 84px; flex: none;
+  background: linear-gradient(135deg, var(--primary) 0%, #0a5a9c 100%);
+  border-radius: 14px; color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  box-shadow: var(--shadow);
+}
+.header .title-box .cn {
+  font-size: 34px; font-weight: 800; letter-spacing: 4px; line-height: 1.2;
+}
+.header .title-box .en {
+  font-size: 13px; opacity: .75; letter-spacing: 1px; margin-top: 2px;
+}
+.header .right { text-align: right; }
+.header .clock { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.header .date-line { font-size: 15px; opacity: .85; margin-top: 2px; }
+.header .meta-line {
+  margin-top: 4px; font-size: 13.5px; display: flex; gap: 16px; justify-content: flex-end; align-items: center;
+}
+.status-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #4ade80; margin-right: 5px; vertical-align: 1px; }
+.status-dot.warn { background: #f87171; }
+
+/* ===== KPI 行 ===== */
+.kpi-row {
+  height: 106px; flex: none;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+  position: relative;
+}
+.kpi {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 10px 22px;
+  border-top: 3px solid var(--primary);
+}
+.kpi .label { font-size: 15px; color: var(--muted); }
+.kpi .value {
+  font-size: 40px; font-weight: 800; color: var(--primary); line-height: 1.15;
+  white-space: nowrap;
+}
+.kpi .value .unit { font-size: 16px; font-weight: 600; color: var(--muted); margin-left: 3px; }
+.kpi .sub { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+.kpi.accent { border-top-color: var(--accent); }
+.kpi.accent .value { color: var(--accent); }
+.kpi.green { border-top-color: var(--ok); }
+.kpi.green .value { color: var(--ok); }
+.kpi.teal { border-top-color: var(--teal); }
+.kpi.teal .value { color: var(--teal); }
+.kpi-note {
+  position: absolute; right: 0; top: -22px;
+  font-size: 12.5px; color: var(--muted);
+}
+
+/* ===== 主区三列 ===== */
+.main {
+  flex: 1 1 auto; min-height: 0;
+  display: grid;
+  grid-template-columns: 452px 1fr 470px;
+  gap: 14px;
+}
+.col { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+}
+.card .card-hd {
+  flex: none;
+  padding: 10px 16px 6px;
+  font-size: 18px; font-weight: 700; color: var(--primary);
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.card .card-hd .hint { font-size: 12px; color: var(--muted); font-weight: 400; }
+.card .chart { flex: 1 1 auto; min-height: 0; }
+.card .foot-note {
+  flex: none; padding: 4px 16px 9px; font-size: 12px; color: var(--muted);
+}
+
+/* 地图卡 */
+.card.map-card .chart { margin: 0 4px; }
+.map-caption {
+  flex: none; padding: 4px 16px 9px; font-size: 12px; color: var(--muted);
+}
+
+/* 即将开标列表 */
+.upcoming-list { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 2px 12px 8px; }
+.upcoming-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5.5px 6px; border-bottom: 1px dashed var(--line);
+  font-size: 14.5px;
+}
+.upcoming-item:last-child { border-bottom: none; }
+.badge-d {
+  flex: none; min-width: 44px; text-align: center;
+  font-size: 13px; font-weight: 800; color: #fff;
+  border-radius: 6px; padding: 2px 6px;
+  background: var(--primary);
+}
+.badge-d.d1 { background: var(--accent); }
+.badge-d.d3 { background: var(--warn); }
+.upcoming-item .u-title {
+  flex: 1 1 auto; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.upcoming-item .u-meta { flex: none; color: var(--muted); font-size: 12.5px; }
+
+/* ===== 底部公告流 ===== */
+.notice-bar {
+  height: 172px; flex: none;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.notice-bar .card-hd { padding: 10px 16px 4px; }
+.notice-rows { flex: 1 1 auto; display: flex; flex-direction: column; padding: 0 16px 10px; gap: 4px; }
+.notice-row {
+  flex: 1 1 0; min-height: 0;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 17px;
+  border-radius: 8px; padding: 0 10px;
+  transition: opacity .5s ease;
+  background: #f6f9fc;
+}
+.badge-type {
+  flex: none; font-size: 12.5px; font-weight: 700; color: #fff;
+  border-radius: 5px; padding: 2.5px 8px;
+  background: var(--muted);
+}
+.badge-type.tender { background: var(--primary); }
+.badge-type.award { background: var(--ok); }
+.badge-type.intention { background: var(--teal); }
+.notice-row .n-title {
+  flex: 1 1 auto; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.notice-row .n-meta { flex: none; color: var(--muted); font-size: 13.5px; display: flex; gap: 14px; }

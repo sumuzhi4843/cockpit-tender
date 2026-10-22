@@ -1,0 +1,296 @@
+/* ====== 通用组件 ====== */
+
+/* —— 加载占位 —— */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+}
+
+.loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  margin-right: var(--gap-sm);
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* —— 空状态 —— */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+}
+
+/* —— 模块错误占位（2026-08-09 模块化：某板块失败不影响其他板块）—— */
+.module-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.module-error__icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.module-error__title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.module-error__hint {
+  font-size: var(--font-size-sm);
+  margin-bottom: 12px;
+}
+
+.module-error__detail {
+  font-size: 12px;
+  color: var(--color-text-light);
+  max-width: 480px;
+  overflow-wrap: break-word;
+  margin-bottom: 16px;
+}
+
+.module-error__retry {
+  appearance: none;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-primary);
+  padding: 8px 24px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms;
+  font-family: var(--font-family);
+}
+
+.module-error__retry:hover {
+  border-color: var(--color-primary);
+  background: #f0f6fc;
+}
+
+/* —— 提示 toast（2026-08-09 已删：无 JS 调用，死代码）—— */
+
+/* 移动端：底部居中，避免遮挡顶栏与内容 */
+
+/* —— 更新公告弹窗（2026-08-16 版本号驱动）—— */
+.cl-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.cl-modal--in { opacity: 1; }
+.cl-modal--out { opacity: 0; }
+
+.cl-modal__card {
+  width: 100%;
+  max-width: 560px;
+  max-height: 82vh;
+  overflow-y: auto;
+  background: var(--color-card, #fff);
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 20px 50px rgba(2, 6, 23, 0.35);
+  padding: 24px 24px 20px;
+  position: relative;
+  transform: translateY(14px) scale(0.98);
+  transition: transform 200ms ease;
+}
+
+.cl-modal--in .cl-modal__card { transform: translateY(0) scale(1); }
+
+.cl-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-light, #94a3b8);
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 150ms, color 150ms;
+  font-family: var(--font-family, inherit);
+}
+
+.cl-modal__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text, #0f172a);
+}
+
+.cl-modal__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-right: 30px;
+}
+
+.cl-modal__icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e0f2fe, #d1fae5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.cl-modal__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text, #0f172a);
+  line-height: 1.35;
+}
+
+.cl-modal__sub {
+  font-size: 12px;
+  color: var(--color-text-light, #64748b);
+  margin-top: 2px;
+}
+
+.cl-modal__list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cl-modal__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text, #0f172a);
+  background: var(--color-bg, #f8fafc);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.cl-modal__tag {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 2px;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.cl-modal__tag:empty { display: none; }
+
+.cl-modal__text { flex: 1; }
+
+.cl-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  padding-top: 14px;
+}
+
+.cl-modal__note {
+  font-size: 11px;
+  color: var(--color-text-light, #94a3b8);
+}
+
+.cl-modal__btn {
+  appearance: none;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 26px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 150ms, transform 100ms;
+  font-family: var(--font-family, inherit);
+}
+
+.cl-modal__btn:hover { opacity: 0.9; }
+.cl-modal__btn:active { transform: scale(0.97); }
+
+@media (max-width: 640px) {
+  .cl-modal { padding: 14px; }
+  .cl-modal__card { padding: 18px 16px 16px; }
+  .cl-modal__title { font-size: 15px; }
+  .cl-modal__icon { width: 38px; height: 38px; flex-basis: 38px; font-size: 19px; }
+  .cl-modal__foot { flex-direction: column-reverse; align-items: stretch; }
+  .cl-modal__note { text-align: center; }
+}
+
+/* —— 空板块占位（2026-08-09：内容待填充的板块）—— */
+.module-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.module-empty__icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.module-empty__title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.module-empty__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+}
+
+/* 2026-08-18 v4：平板端调整 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .module-empty { padding: 36px 24px; min-height: 280px; }
+  .module-empty__icon { font-size: 44px; }
+  .module-empty__title { font-size: clamp(15px, 1.8vw, 17px); }
+}

@@ -1,0 +1,591 @@
+[
+  {
+    "id": "exp-2026-10-01-001",
+    "title": "城南新区中标公示页 winner/winning_amount/manager/term_days 抽取",
+    "site": "城南新区公共资源交易网",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "/jyxx/001001/001001004/",
+    "page_signatures": [
+      "中标结果公告",
+      "中标结果公示"
+    ],
+    "trigger_condition": "notice_type='award' AND site='城南新区公共资源交易网' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "所有 award notice 的 winner 和 winning_amount 字段为空（56/56 = 100% 缺失）",
+    "root_cause": "BaseScraper.extract_detail_fields() 默认只抽预算/截止时间，不抽中标字段；LegacyPublicResourceScraper 只解析列表页，没下钻详情页",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py",
+      "projects/cockpit/tender/collector/archive/oneoff-cron/2026-10-01-cncq-award-backfill/_backfill_cncq_award.py"
+    ],
+    "fix_summary": "BeautifulSoup 解析详情页 <table>，模糊匹配'中标单位'/'中标价/金额/价格'/'项目负责人/经理'列，从含数字的数据行抽 winner/amount/manager/term_days",
+    "label_normalization": "剥所有空白 + 剥全角半角括号差异，让模糊匹配兼容 6+ 种变体",
+    "label_variants": [
+      "中标价（元）",
+      "中标价（ 元 ）",
+      "中标价 (元)",
+      "中标价（ 元 ）",
+      "中标价格（元）",
+      "中标价格 (元)",
+      "中标金额（元）",
+      "中标 金额 （ 元 ）",
+      "项目负责人",
+      "项目经理",
+      "项目经 理",
+      "工期（日历天）",
+      "工期（天）",
+      "工期 (日历天)"
+    ],
+    "evidence_url": "http://221.231.11.22:8099/jyxx/001001/001001004/20260904/a4416f95-a469-4040-951e-605578f1a6b3.html",
+    "evidence_notice_id": "0fe8a76ed2f3fd541f939723b69a8a28",
+    "evidence_project_id": "p_df11a606d781888873090e4f69345406",
+    "extractor_function": "tender.collector.scrapers.LegacyPublicResourceScraper._parse_award_page",
+    "generalization": "任何'中标结果'页面（URL 含 /001001004/ 或类似路径）：先验'中标单位'列 + '中标价/金额/价格'列（模糊匹配），从含数字的数据行抽数据",
+    "scope": "单站：城南新区公共资源交易网（同类老旧公共资源交易站应参考）",
+    "verified_at": "2026-10-01T22:39:00",
+    "first_seen": "2026-10-01T18:40:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-002",
+    "title": "cofco（中粮e采）bidSectionId 跨 trade 项目锚抽取",
+    "site": "中粮e采",
+    "notice_types": [
+      "tender",
+      "award",
+      "correction",
+      "failed",
+      "other"
+    ],
+    "url_pattern": "cofcoec\\.com/web-portal/index\\.html#/trade-info-detail",
+    "page_signatures": [
+      "bidSectionId"
+    ],
+    "trigger_condition": "cofco award/correction notice 没关联到正确项目（同项目不同 noticeType 应共享 pid）",
+    "symptom": "cofco 招标/中标/变更/异常 notice 用 norm_name 模糊匹配聚合，跨 trade 不同 tradeId 的相同项目被拆成多个 pid",
+    "root_cause": "cofco 列表 API 用 tradeId 区分每次 trade，但同项目的不同 tradeType 共享同一 bidSectionId。原 _project_key() 只读通用项目键（project_key/purchases_need_id/pneed_id），cofco 没填，漏读 bidSectionId",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py",
+      "projects/cockpit/tender/collector/project_engine.py",
+      "projects/cockpit/tender/collector/archive/oneoff-cron/2026-09-30-cofcoec-backfill/_backfill_cofcoec.py",
+      "projects/cockpit/tender/collector/archive/oneoff-cron/2026-10-01-cofcoec-backfill/_backfill_cofco_bid_section.py"
+    ],
+    "fix_summary": "CofcoEScraper._fetch_trade_detail 调详情 API GET /getByTradeId，按 noticeType 取对应容器（biddingNotice/bidResultAnnounce/biddingChangeNotice/bidCandidateAnnounce/tenderExceptionNotice）抽 bidSectionId，写到 raw_json.bid_section_id。project_engine._project_key() site=='中粮e采' 时优先读此字段。回灌存量 285/399 条",
+    "notice_type_container_map": {
+      "1": "biddingNotice",
+      "2": "biddingChangeNotice",
+      "3": "bidCandidateAnnounce",
+      "4": "bidResultAnnounce",
+      "5": "tenderExceptionNotice"
+    },
+    "evidence_url": "https://cofcoec.com/web-portal/index.html#/trade-info-detail?id=1546438197814857728&noticeType=4&publishStatus=1",
+    "evidence_notice_id": "9a29bcebaf844b5bf8077498059695cc",
+    "evidence_project_id": "p_e7112a0b04167d0bc126762377192a2c",
+    "extractor_function": "tender.collector.scrapers.CofcoEScraper._extract_bid_section_id",
+    "generalization": "任何用 tradeId/noticeType 区分类目，但同项目有稳定跨类型锚（如 bidSectionId/项目编号）的站 —— 走详情 API 抽锚，写到 raw_json，project_engine 按 site 路由优先读",
+    "scope": "单站：中粮e采",
+    "verified_at": "2026-10-01T22:39:00",
+    "first_seen": "2026-09-30T18:40:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-006",
+    "title": "中国政府采购网（ccgp）中标/成交公告页 winner/winning_amount 抽取（概要型 + 表格型两路径）",
+    "site": "中国政府采购网",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "www\\.ccgp\\.gov\\.cn/cggg/.*/zbgg|cjgg",
+    "page_signatures": [
+      "供应商名称",
+      "中标/成交金额",
+      "总中标金额",
+      "总成交金额"
+    ],
+    "trigger_condition": "site='中国政府采购网' AND notice_type='award' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "636/1297 ccgp award notice winner+amount 双空（49% 缺失）；政府采购类页面含表格+概要两类",
+    "root_cause": "原 scraper 走 BaseScraper.extract_detail_fields 抽不到 winner/amount；页面两种格式需要两种 regex 路径",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_ccgp_award_page(html) 模块函数",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_ccgp_award_page(html) 函数。路径 A：概要型「总中标金额 ￥X 万元」直接乘以 10000 转元；路径 B：表格型「供应商名称 ... 1 公司名 XXX ... ... 金额元」抽公司名 + 同行金额。",
+    "label_variants": [
+      "供应商名称",
+      "中标人",
+      "成交供应商",
+      "中标供应商",
+      "中标/成交金额",
+      "中标金额",
+      "成交金额",
+      "总中标金额",
+      "总成交金额",
+      "￥X.XXXXXXX 万元",
+      "X元"
+    ],
+    "evidence_url": "http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202608/t20260805_27073977.htm",
+    "evidence_notice_id": "5899ab0ad662212d3e249b3a5c69c5c8",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_ccgp_award_page",
+    "generalization": "任何「中标/成交公告」类政府站（ccgp / ccgp-江苏 / 江苏政采 / czj）：两种路径 (概要型 + 表格型) 兼容。L2 钩子自动套用。",
+    "scope": "单站：中国政府采购网（ccgp）",
+    "verified_at": "2026-10-02T00:05:00",
+    "first_seen": "2026-10-01T22:50:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-004",
+    "title": "盐城市东方集团 中选/中标公示页 winner/winning_amount 抽取（询比用「中选人」，招标用「中标候选人」）",
+    "site": "盐城市东方集团",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "www\\.ycdfjt\\.com/zbzl/qzzgs/",
+    "page_signatures": [
+      "中选人",
+      "中标候选人",
+      "中选价",
+      "中标价"
+    ],
+    "trigger_condition": "site='盐城市东方集团' AND notice_type='award' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "58/124 东方集团 award notice winner+amount 都空（47% 缺失）；raw_json.content 全是导航栏（'邮箱 OA 入口 首页...'），被 MAX_DETAIL_CHARS 截断后正文丢了",
+    "root_cause": "东方集团用 CommonListScraper（通用列表 HTML scraper），详情页 nav+footer 约 580 字符，MAX_DETAIL_CHARS=8000 之前遇到腾讯云jsjsjs 下的面中间 -没问题，但不同页中选/中标信息位置在 chars 500-2000，被 nav 截取后才拿到后不存完。scraper 没调 content_select.text，不补抽后续页",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_dongfang_award_page(html) 模块函数",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_dongfang_award_page(html) 函数，正则别 4 种 label（中选人/中标候选人/中选单位/中标单位 × 中标价/中选价/中标价格/中选价格），从全页 HTML 抽取 winner + winning_amount。exp-2026-10-01-004 加这条记录让 L2 钩子自动套用",
+    "label_variants": [
+      "中选人",
+      "中标候选人",
+      "中选单位",
+      "中标单位",
+      "中选价",
+      "中标价",
+      "中标价格",
+      "中选价格",
+      "中标价：规定收费标准的X%（费率形式）",
+      "中标价（费率）X‰/年（费率形式）"
+    ],
+    "evidence_url": "http://www.ycdfjt.com/zbzl/qzzgs/2026-06-18/5761.html",
+    "evidence_notice_id": "09d92bb0a03f0351654c602168ef37e1",
+    "evidence_project_id": "p_b3bf1ca54a40479c",
+    "extractor_function": "tender.collector.scrapers.parse_dongfang_award_page",
+    "generalization": "任何「页面 nav 很长 + 正文位置后」的小站（CommonListScraper 类）：不用改 scraper 主流程，另写一个 fetch+正则抽同页主内容的函数 + 入经验样本，L2 钩子自动套用",
+    "scope": "单站：盐城市东方集团（其它类似 nav-heavy 小站可参考）",
+    "verified_at": "2026-10-01T23:15:00",
+    "first_seen": "2026-10-01T22:50:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-005",
+    "title": "盐城市都市建设投资集团（ycdsjt）中标公示页 winner/winning_amount 抽取（标准「中标单位：X / 中标价：Y元」）",
+    "site": "盐城市都市建设投资集团有限公司",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "www\\.ycdsjt\\.cn/\\?zhaobiao/",
+    "page_signatures": [
+      "中标单位",
+      "中标价",
+      "项目负责人"
+    ],
+    "trigger_condition": "site='盐城市都市建设投资集团有限公司' AND notice_type='award' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "9 条 award notice winner+amount 都空；raw_json.content 有页面但反爬混了动态内容 / 原 scraper 未抽这两字段",
+    "root_cause": "原 exp-2026-09-28-003 只覆盖了 _infer_date（日期漂移工具），未提供 winner/winning_amount 抽取器；本页用标准「中标单位：X」/「中标价：Y元」标签需要独立 extractor",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_ycdsjt_award_page(html) 模块函数",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_ycdsjt_award_page(html) 函数，剥 HTML 标签 + 空格 → 正则「中标单位[：:]\\s*X」「中标价[：:]\\s*([\\d,.]+)\\s*元」「项目负责人[：:]\\s*Z」。「项目预算/预算金额」标志表示本页可能未公布金额。",
+    "label_variants": [
+      "中标单位：X",
+      "中标价：Y元",
+      "项目负责人：Z",
+      "工期：W日历天",
+      "标 办 法：总价最低价法"
+    ],
+    "evidence_url": "http://www.ycdsjt.cn/?zhaobiao/2461.html",
+    "evidence_notice_id": "524d0950f89b3940ad972cb1f8a8af48",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_ycdsjt_award_page",
+    "generalization": "任何「中标单位：X」/「中标价：Y元」标准格式的小站（ycdsjt 类型）：抽 1 页 + 正则 + L2 钩子自动套",
+    "scope": "单站：盐城市都市建设投资集团有限公司",
+    "verified_at": "2026-10-01T23:52:00",
+    "first_seen": "2026-10-01T23:50:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-09-28-003",
+    "title": "ycdsjt 列表日期漂移修复（列表只给「日」号，按 ≤ 今天 误标当月）",
+    "site": "盐城市都市建设投资集团有限公司",
+    "notice_types": [
+      "tender",
+      "award",
+      "other",
+      "correction",
+      "failed"
+    ],
+    "url_pattern": "ycdsjt\\.cn/\\?zhaobiao",
+    "page_signatures": [
+      "dt.f18",
+      "dd.date",
+      "评标结果公示"
+    ],
+    "trigger_condition": "ycdsjt 列表日期含月份错位（同 url 出现多行/日期被顶到采集日）",
+    "symptom": "ycdsjt 478 条 notice 裂出 198 行重复；深页老公告（如 8 月同号的）日期被误标为当月最新",
+    "root_cause": "列表只给「日」号，scraper 用'日≤今天⇒当月'猜测 —— 翻深页（page 3+）遇到上月同号时全误标为当月；upsert 按 md5(site|url|title|date) 哈希，日期漂移导致同 url 裂出多行",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py",
+      "projects/cockpit/tender/collector/store_db.py",
+      "projects/cockpit/tender/collector/archive/oneoff-cron/2026-09-28-dsjt-datefix/fix_dsjt_dates.py"
+    ],
+    "fix_summary": "列表日期改'日≤今天⇒跨页逐月回推'（用 _infer_date，回推越界钳到月尾）；详情页'发布时间'为最终日期（enrich 幂等保护）；同 url 裂行 → 删冗余保留最早",
+    "anchor_strategy": "scrape() 起始时 self._now_dt = datetime.now()；每页内'日'递减回推（前条日期 prev_dt 作参考，防'日超该月月尾'误回退）",
+    "evidence_url": "http://www.ycdsjt.cn/?zhaobiao/",
+    "evidence_ledger": "data/fix_dsjt_dates_report.json（100 条日期纠正 + 198 行重复删除，账本可精确还原）",
+    "extractor_function": "tender.collector.scrapers.YcDsjtScraper._infer_date",
+    "generalization": "任何'列表日期只有日号，跨页降序'的站（ycdsjt 同结构）：用 now() 锚逐月回推 + 详情页覆盖",
+    "scope": "单站：盐城市都市建设投资集团有限公司",
+    "verified_at": "2026-09-28T22:00:00",
+    "first_seen": "2026-09-28T21:33:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-007",
+    "title": "盐城市政府采购网（czj）中标/成交公告页 winner/winning_amount 抽取（同 ccgp 格式，复用 extractor）",
+    "site": "盐城市政府采购网",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "czj\\.yancheng\\.gov\\.cn/art/",
+    "page_signatures": [
+      "供应商名称",
+      "中标/成交金额",
+      "总中标金额"
+    ],
+    "trigger_condition": "site='盐城市政府采购网' AND notice_type='award' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "136/950 czj award notice winner+amount 双空（17%）",
+    "root_cause": "原 scraper 走 BaseScraper.extract_detail_fields 不抽 winner/amount；同 ccgp 格式（供应商名称+中标/成交金额表行+总中标金额概要）",
+    "fix_files": [
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目（复用 parse_ccgp_award_page）"
+    ],
+    "fix_summary": "复用 exp-006 的 parse_ccgp_award_page（不用改代码），只新加 exp 条目 + url_pattern",
+    "label_variants": [
+      "供应商名称",
+      "中标/成交金额",
+      "中标金额",
+      "成交金额",
+      "总中标金额",
+      "总成交金额"
+    ],
+    "evidence_url": "https://czj.yancheng.gov.cn/art/2026/8/7/art_20146_25135.html",
+    "evidence_notice_id": "152887d9134fd59e2ccd4e9fc7e15c1d",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_ccgp_award_page",
+    "generalization": "任何同 ccgp 格式的政务采购站（czj / 江苏政采 等）：复用 ccgp extractor + 新加 url_pattern 条目",
+    "scope": "单站：盐城市政府采购网（czj）",
+    "verified_at": "2026-10-02T00:48:00",
+    "first_seen": "2026-10-01T23:00:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-008",
+    "title": "开发区公共资源交易网 中标公示页 winner/winning_amount 抽取（同 ccgp 格式）",
+    "site": "开发区公共资源交易网",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "218\\.92\\.181\\.186|jyxx/001001/001001004",
+    "page_signatures": [
+      "中标候选人",
+      "中标价"
+    ],
+    "trigger_condition": "site='开发区公共资源交易网' AND notice_type='award' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "5/21 开发区 award notice winner+amount 双空（24%）",
+    "root_cause": "原 scraper 用 CommonListScraper 不抽 winner/amount；同 城南新区 URL 路径 /jyxx/001001/001001004/",
+    "fix_files": [
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "复用 exp-001 的 parse_award_page（城南新区用的）；url_pattern 兼容 218.92.181.186（开发区内网 IP）",
+    "label_variants": [
+      "中标候选人",
+      "中标价"
+    ],
+    "evidence_url": "http://218.92.181.186:8081/jyxx/001001/001001004/...",
+    "evidence_notice_id": null,
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.LegacyPublicResourceScraper._parse_award_page",
+    "generalization": "同 221.231.11.22 老旧内网站（城南新区/开发区），复用 _parse_award_page + url_pattern 多 host",
+    "scope": "单站：开发区公共资源交易网",
+    "verified_at": "2026-10-02T00:48:00",
+    "first_seen": "2026-10-02T00:48:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-009",
+    "title": "盐城市人民政府网 + 中国邮政 中标页 winner/winning_amount 抽取",
+    "site": "盐城市人民政府网",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "www\\.yancheng\\.gov\\.cn|youpin\\.chinapost\\.com\\.cn",
+    "page_signatures": [
+      "供应商名称",
+      "中标",
+      "成交"
+    ],
+    "trigger_condition": "site='盐城市人民政府网' OR site='中国邮政' AND notice_type='award' AND (winner IS NULL OR winner='' OR winning_amount IS NULL OR winning_amount='')",
+    "symptom": "人民政府网 2/30 + 中国邮政 2/2 双空",
+    "root_cause": "原 scraper 走 BaseScraper.extract_detail_fields 不抽 winner/amount；可能同 ccgp 格式",
+    "fix_files": [
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "复用 parse_ccgp_award_page；中国邮政可能需单独 sample 确认格式",
+    "label_variants": [
+      "供应商名称",
+      "中标/成交金额"
+    ],
+    "evidence_url": null,
+    "evidence_notice_id": null,
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_ccgp_award_page",
+    "generalization": "人民政府网中标页（同 ccgp 格式）",
+    "scope": "多站：盐城市人民政府网 + 中国邮政",
+    "verified_at": "2026-10-02T00:48:00",
+    "first_seen": "2026-10-02T00:48:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-010",
+    "title": "江苏政府采购网（ccgp-jiangsu）中标公示页 winner/winning_amount 抽取（同 ccgp 格式，从 DB content 抽）",
+    "site": "江苏政府采购网",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "ccgp-jiangsu\\.gov\\.cn/jiangsu/js_cggg/details",
+    "page_signatures": [
+      "供应商名称",
+      "中标/成交金额",
+      "总中标金额",
+      "总成交金额"
+    ],
+    "trigger_condition": "site='江苏政府采购网' AND notice_type='award' AND (winner IS NULL OR TRIM(winner)='' OR winning_amount IS NULL OR TRIM(winning_amount)='') AND raw_json != ''",
+    "symptom": "468/5393 江苏政采 award notice winner+amount 双空（9% 缺失）；页 JS 渲染，但 raw_json.content 已存完整正文",
+    "root_cause": "页面 JS 渲染无法重新 fetch，但 scraper 之前已抓到完整 content 进 raw_json.content。apply_pending_to_db（重新 fetch）只能拿到 JS 壳子 250 字节，所以一直抽不到",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_js_jiangsu_award_page(content) 模块函数",
+      "projects/cockpit/tender/collector/experience_auto.py — apply_from_db_content 函数（不重 fetch）",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_js_jiangsu_award_page(content) 函数（同 ccgp 格式 regex，但接受 content 参数而非 fetch HTML）。experience_auto.py 加 apply_from_db_content(db_path, sites_filter) 函数，从 raw_json.content 直接抽不重新 fetch",
+    "label_variants": [
+      "供应商名称",
+      "中标/成交金额",
+      "中标金额",
+      "成交金额",
+      "总中标金额",
+      "总成交金额",
+      "项目名称"
+    ],
+    "evidence_url": "http://www.ccgp-jiangsu.gov.cn/jiangsu/js_cggg/details.html?gglb=zbgg&ggid=922ecb4aae8f42ed920bd6505d5c859c",
+    "evidence_notice_id": "b11ab068441fda7d8c3d1c6ff07478cd",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_js_jiangsu_award_page",
+    "generalization": "任何 JS 渲染但 content 已存 DB 的站：apply_from_db_content 从 raw_json.content 直接抽",
+    "scope": "单站：江苏政府采购网（ccgp-jiangsu）",
+    "verified_at": "2026-10-02T01:25:00",
+    "first_seen": "2026-10-02T01:25:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-011",
+    "title": "盐城市公共资源交易网（ycggzy）中标候选人页 winner/winning_amount 抽取（从 DB content 抽）",
+    "site": "盐城市公共资源交易网",
+    "notice_types": [
+      "award",
+      "award_candidate"
+    ],
+    "url_pattern": "ycggzy\\.jszwfw\\.gov\\.cn",
+    "page_signatures": [
+      "中标候选人基本情况",
+      "投标总报价",
+      "质量",
+      "工期"
+    ],
+    "trigger_condition": "site='盐城市公共资源交易网' AND notice_type IN ('award','award_candidate') AND (winner IS NULL OR TRIM(winner)='' OR winning_amount IS NULL OR TRIM(winning_amount)='') AND raw_json != ''",
+    "symptom": "465/1362 ycggzy notice winner+amount 空；Vue SPA 但 raw_json.content 存了完整中标候选人信息",
+    "root_cause": "Vue SPA 重新 fetch 只能拿 shell；DB 里 content 已完整（'中标候选人基本情况 排名 1 江苏移动 ... 699999.00 元'）",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_ycggzy_award_page(content) 函数",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_ycggzy_award_page(content) 函数，正则「排名 1 公司名 数字.00」",
+    "label_variants": [
+      "中标候选人基本情况",
+      "投标总报价",
+      "中标候选人名称",
+      "排名"
+    ],
+    "evidence_url": null,
+    "evidence_notice_id": "28e74dce91ef16a4e5f2fb4d25e7c9b9",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_ycggzy_award_page",
+    "generalization": "Vue SPA 站（ycggzy 之类）：从 DB content 抽，表格型正则",
+    "scope": "单站：盐城市公共资源交易网（ycggzy）",
+    "verified_at": "2026-10-02T01:25:00",
+    "first_seen": "2026-10-02T01:25:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-012",
+    "title": "江苏招标采购服务平台（jszbcg）中标人页 winner 抽取（多段式「中标人名称: X」）",
+    "site": "江苏招标采购服务平台",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "jszbcg\\.com|jszbcg",
+    "page_signatures": [
+      "一、中标人信息",
+      "中标人名称"
+    ],
+    "trigger_condition": "site='江苏招标采购服务平台' AND notice_type='award' AND (winner IS NULL OR TRIM(winner)='') AND raw_json != ''",
+    "symptom": "634/922 jszbcg award notice winner 空；多段式（多片区多供应商）",
+    "root_cause": "页 JS 渲染，但 raw_json.content 存了完整中标人列表（'食材分组一、片区一：中标人名称: 南京祥瑞...'）",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_jszbcg_award_page(content)",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_jszbcg_award_page(content) 函数，正则「中标人名称：X」取第一家",
+    "label_variants": [
+      "中标人名称",
+      "一、中标人信息"
+    ],
+    "evidence_url": null,
+    "evidence_notice_id": "b9fc25df6cbb04bcf26c8a9b3a3e0a3e",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_jszbcg_award_page",
+    "generalization": "多段式采购页（jszbcg 类）：取第一个「中标人名称」",
+    "scope": "单站：江苏招标采购服务平台（jszbcg）",
+    "verified_at": "2026-10-02T01:25:00",
+    "first_seen": "2026-10-02T01:25:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-01-013",
+    "title": "中粮e采（cofco）成交供应商页 winner 抽取（「成交供应商为X、Y」文本型）",
+    "site": "中粮e采",
+    "notice_types": [
+      "award"
+    ],
+    "url_pattern": "ecai\\.cofco\\.com",
+    "page_signatures": [
+      "成交供应商为",
+      "备选供应商为"
+    ],
+    "trigger_condition": "site='中粮e采' AND notice_type='award' AND (winner IS NULL OR TRIM(winner)='') AND raw_json != ''",
+    "symptom": "115/115 cofco award notice winner 全空；JS SPA 但 content 存了「成交供应商为A公司、B公司」",
+    "root_cause": "页 JS 渲染但 content 存了「成交供应商为XXX、YYY」多供应商文本。exp-002 已抽 bid_section_id，但 winner 需新 extractor",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_cofco_award_content(content)",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_cofco_award_content(content) 函数，正则「成交供应商为X、Y」取第一家",
+    "label_variants": [
+      "成交供应商为",
+      "备选供应商为"
+    ],
+    "evidence_url": null,
+    "evidence_notice_id": "19f46da7ff52d6e83a5f73c0e3b5b8c0",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_cofco_award_content",
+    "generalization": "多供应商成交公告（cofco 类）：取第一个公司",
+    "scope": "单站：中粮e采（cofco）",
+    "verified_at": "2026-10-02T01:25:00",
+    "first_seen": "2026-10-02T01:25:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-03-014",
+    "title": "中国邮政（cg.11185.cn）中标页 winner/winning_amount 抽取",
+    "site": "中国邮政",
+    "notice_types": [
+      "award",
+      "tender",
+      "correction",
+      "win_bid",
+      "result"
+    ],
+    "url_pattern": "cg\\.11185\\.cn|chinapost",
+    "page_signatures": [
+      "采购公告",
+      "招标公告",
+      "中国邮政"
+    ],
+    "trigger_condition": "site='中国邮政' AND (winner IS NULL OR TRIM(winner)='') AND raw_json != ''",
+    "symptom": "2/2 中国邮政 notice winner 空（0%）",
+    "root_cause": "content 只含 nav + 项目标题，winner/amount 需下钻详情页。现有 exp-009 是复用 ccgp extractor，但 ccgp content 格式跟中国邮政完全不同",
+    "fix_files": [
+      "projects/cockpit/tender/collector/scrapers.py — parse_chinapost_award_page(content) 函数",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "scrapers.py 加 parse_chinapost_award_page(content) 函数（路径 A/B），但因 content 含量太低，主要 hook 走了仍需 Tier 2/3 真做（refetch / Playwright）。",
+    "label_variants": [
+      "成交供应商",
+      "中标供应商",
+      "中标人",
+      "成交价",
+      "中标价"
+    ],
+    "evidence_url": "https://cg.11185.cn/biddingBulletin/2026-08-03/134356.html",
+    "evidence_notice_id": "dda410c7882c1b",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.scrapers.parse_chinapost_award_page",
+    "generalization": "cg.11185.cn / 邮政类页面是模板化结构 + 详情下钻。content 里只放项目名称，winner/amount 需 detail URL。",
+    "scope": "单站：中国邮政",
+    "verified_at": "2026-10-03T14:48:00",
+    "first_seen": "2026-10-03T14:48:00",
+    "status": "verified"
+  },
+  {
+    "id": "exp-2026-10-03-015",
+    "title": "ycggzy / 工程类项目 '项目业主为 XXX公司' tenderer 抽取",
+    "site": "*ycggzy+czj+工程类项目",
+    "notice_types": [
+      "tender",
+      "award",
+      "correction"
+    ],
+    "url_pattern": "ycggzy\\.jszwfw\\.gov\\.cn|chengnan\\.jszwfw|czj\\.yancheng",
+    "page_signatures": [
+      "项目业主为",
+      "业主单位为",
+      "业主为"
+    ],
+    "trigger_condition": "tenderer 抽到 '投标人须具有...' 或 '具体实施范围以招标人所' 或 '为招标人提供...' 等规则描述",
+    "symptom": "tenderer 字段是规则描述开头（如 '投标人须具有...'），不是公司名",
+    "root_cause": "_extract_purchaser 漏 '项目业主为 XXX' / '业主单位为 XXX' 等模式，fallback 才捕获到后面的资格描述",
+    "fix_files": [
+      "projects/cockpit/tender/collector/enrich_engine.py — _extract_purchaser 加 6 个 owner_pattern（项目业主/业主单位/业主 为/:）",
+      "projects/cockpit/tender/collector/experience_samples.json — 本条目"
+    ],
+    "fix_summary": "v3.2: 补 6 个 owner_pattern 优先匹配 → 必须先过 ORG_SUFFIX 后缀验证 → 拦截错误捕获",
+    "label_variants": [
+      "项目业主为",
+      "项目业主:",
+      "业主单位为",
+      "业主单位:",
+      "业主为",
+      "业主:"
+    ],
+    "evidence_url": "http://ycggzy.jszwfw.gov.cn/#/detail?id=...",
+    "evidence_notice_id": "e7c3197002c1661f29803266ba6e68da",
+    "evidence_project_id": null,
+    "extractor_function": "tender.collector.enrich_engine._extract_purchaser",
+    "generalization": "工程类 ycggzy / czj 公告常用 '项目业主为 XXX' 模式；纯商业类公告用 '招标人/采购人' 模式",
+    "scope": "多站：ycggzy / czj / 城南新区 / 开发区（工程类项目）",
+    "verified_at": "2026-10-03T23:55:00",
+    "first_seen": "2026-10-03T23:55:00",
+    "status": "verified"
+  }
+]

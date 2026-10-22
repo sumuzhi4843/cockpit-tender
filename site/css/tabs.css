@@ -1,0 +1,92 @@
+/* ====== 功能标签栏 ======
+ *
+ * 2026-09-06：tabs 移入 .topbar（标题之后），样式与 h1 标题统一：
+ *  - 紧贴标题右侧，无胶囊/无边框
+ *  - 激活态与标题同款：主色 #00467f、font-weight 600、同字号
+ *  - 激活 tab 视觉上就是标题的延续（当前 5310 站点单 tab 场景）
+ *  - 非激活 tab 用弱化灰 + hover 主色，仍保持可点感
+ */
+
+.tabs {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  /* 2026-09-21 删 h1.title 后：去掉与标题对齐用的左 margin/padding/分隔线 */
+  margin: 0;
+  padding-left: 0;
+  border-left: none;
+}
+
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  line-height: 1.4;
+  color: #fff;
+  font-family: var(--font-family);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+
+/* 2026-09-20 第二波 C：激活 tab 底部亮蓝实线条（负 margin 抵消高度，不推挤基线） */
+.tab--active {
+  border-bottom: 3px solid #66b1ff;
+  margin-bottom: -3px;
+}
+
+/* 非激活 tab：弱化为次级色（站点未来扩展多 tab 时有效） */
+.tab:not(.tab--active) {
+  color: rgba(255, 255, 255, .55);
+  font-weight: 500;
+}
+
+.tab:not(.tab--active):hover {
+  color: #fff;
+}
+
+/* ====== Tab 内容切换 ====== */
+
+.tab-content {
+  display: none;
+}
+
+.tab-content--active {
+  display: block;
+}
+
+/* ====== 移动端（≤768px）：标题与 tab 同行排开，左对齐 ====
+ * 2026-09-23 P0.1：删除原 "tab 独占第二行 + 居中" 设计 —— 标题"招投标信息栏"作为活跃 tab
+ * 在 ≤430px 单独占行时看起来"飘"在屏幕中间。改为与 meta 同行左对齐，靠 margin-right:auto
+ * 推到顶栏左边，meta 排到右侧（layout.css P0.1 规则配套）。
+ * 不再设 .topbar flex-wrap —— 由 layout.css 统一接管，避免重复规则互相覆盖。 */
+@media (max-width: 768px) {
+  .tabs {
+    margin: 0;
+    padding: 0;
+    border-left: none;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    margin-right: auto;  /* 把 meta 推到右侧 */
+  }
+  .tab {
+    font-size: clamp(14px, 3.8vw, 17px);
+    letter-spacing: 0.2px;
+  }
+  .tab:not(.tab--active) {
+    font-weight: 600;
+  }
+}
+
+/* 2026-08-18 v4 兼容：平板/桌面由 .topbar flex 统一接管，仅微调字号 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tab { font-size: 17px; }
+  .tabs { margin-left: 12px; padding-left: 12px; }
+}
+@media (min-width: 1025px) and (max-width: 1365px) {
+  .tab { font-size: 19px; }
+}

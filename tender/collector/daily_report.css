@@ -1,0 +1,364 @@
+/* 日报样式单源：老板直接改本文件调版式（打印/PDF 规则在 @media print 段），daily_report.py 运行时读取 */
+:root {
+  --color-primary: #00467f;
+  --color-primary-dark: #003a6b;
+  --color-primary-light: #1976d2;
+  --color-accent: #e60012;
+  --color-success: #2e7d32;
+  --color-warning: #ed6c02;
+  --color-info: #0288d1;
+  --color-bg: #f5f7fa;
+  --color-bg-soft: #eef2f7;
+  --color-card: #ffffff;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-text-light: #9ca3af;
+  --font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-xs: 12px; --font-size-sm: 13px; --font-size-base: 14px; --font-size-md: 16px; --font-size-lg: 18px; --font-size-xl: 24px; --font-size-2xl: 32px;
+  --gap-xs: 4px; --gap-sm: 8px; --gap-md: 16px; --gap-lg: 24px; --gap-xl: 32px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(15,23,42,.04);
+  --shadow-md: 0 2px 8px rgba(15,23,42,.06);
+}
+* { box-sizing: border-box; }
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background: var(--color-bg);
+  margin: 0;
+  font-size: var(--font-size-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* —— A4 横向容器 —— */
+.daily-page {
+  width: 297mm;
+  min-height: 210mm;
+  margin: 24px auto;
+  background: var(--color-card);
+  box-shadow: var(--shadow-md);
+  padding: 14mm 16mm 16mm;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.daily-page + .daily-page { page-break-before: always; }
+
+/* —— 顶部标题条 —— */
+.daily-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--color-primary);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.daily-head h1 {
+  font-size: 22px;
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.daily-head .daily-date {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+  margin-top: 4px;
+}
+.daily-head .daily-meta {
+  text-align: right;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+.daily-head .daily-meta strong { color: var(--color-text); }
+
+/* —— 摘要卡组 —— */
+.daily-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--color-bg-soft);
+  border-left: 3px solid var(--color-primary);
+  padding: 8px 12px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.stat-card.stat-ict   { border-left-color: var(--color-accent); }
+.stat-card.stat-award { border-left-color: var(--color-success); }
+.stat-card.stat-total { border-left-color: var(--color-primary-light); }
+.stat-card .stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.stat-card.stat-ict   .stat-value { color: var(--color-accent); }
+.stat-card.stat-award .stat-value { color: var(--color-success); }
+
+/* —— 章节标题 —— */
+.daily-section {
+  margin-top: 14px;
+}
+.daily-section h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+  color: var(--color-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.daily-section h2::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+.daily-section .sec-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 400;
+  margin-left: auto;
+}
+
+/* —— 通用表 —— */
+.daily-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+}
+.daily-table th, .daily-table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 5px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.daily-table th {
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: 11px;
+}
+.daily-table tr:last-child td { border-bottom: none; }
+/* 列宽自适应（2026-09-12 老板拍板）：短列贴内容收紧、剩余宽度全给标题列；class 同挂 th+td 才能整列生效 */
+.daily-table .col-title { width: auto; }
+.daily-table .col-time, .daily-table .col-district, .daily-table .col-src, .daily-table .col-num { width: 1%; white-space: nowrap; }
+.daily-table .col-time  { padding-right: 4px; }
+.daily-table .col-district { padding-right: 6px; }
+.daily-table .col-src   { padding-right: 10px; }
+.daily-table .col-num   { text-align: right; font-variant-numeric: tabular-nums; }
+.daily-table th.col-time, .daily-table th.col-district, .daily-table th.col-src, .daily-table th.col-num { color: var(--color-text-muted); }
+
+/* —— ICT 命中词标签 —— */
+.ict-hit {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.ict-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  background: #e5f1fb;
+  color: var(--color-info);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.ict-chip.strong {
+  background: #fce8e6;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+.ict-chip.more {
+  background: #eef2f6;
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+/* —— 区县分布横向条 —— */
+.dist-bars { display: flex; flex-direction: column; gap: 4px; }
+.dist-row { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-xs); }
+.dist-name { width: 90px; color: var(--color-text-muted); text-align: right; }
+.dist-bar-wrap { flex: 1; background: var(--color-bg-soft); height: 12px; border-radius: 6px; overflow: hidden; }
+.dist-bar { height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light)); border-radius: 6px; }
+.dist-cnt { width: 38px; text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text); }
+
+/* —— Top5 列表 —— */
+.top-list { list-style: none; margin: 0; padding: 0; counter-reset: top; }
+.top-list li {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--color-border);
+  font-size: var(--font-size-xs);
+}
+.top-list li:last-child { border-bottom: none; }
+.top-list li::before {
+  counter-increment: top;
+  content: counter(top);
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  text-align: center;
+  line-height: 18px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.top-list .top-amt {
+  color: var(--color-accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* —— 底栏 —— */
+.daily-foot {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--color-text-light);
+  line-height: 1.6;
+}
+.daily-foot .foot-left strong { color: var(--color-text-muted); }
+
+/* —— 元件标记 —— */
+.sample-tag {
+  display: inline-block;
+  background: #fff7ed;
+  color: var(--color-warning);
+  border: 1px dashed var(--color-warning);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* —— 表格里的金额 / 状态 —— */
+.amount { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-text); }
+.tag-pill {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 10px;
+  border-radius: 8px;
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+  margin-right: 3px;
+}
+.tag-pill.tender { background: #e8f5fe; color: var(--color-primary); }
+.tag-pill.award  { background: #e6f7eb; color: var(--color-success); }
+
+/* —— 浮动工具条 —— */
+.daily-toolbar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-xs);
+  z-index: 1000;
+}
+.daily-toolbar button {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+}
+.daily-toolbar button:hover { background: var(--color-primary-dark); }
+.daily-toolbar .note { color: var(--color-text-muted); }
+.daily-toolbar .note:last-child {
+  background: #fff7ed;
+  color: var(--color-warning);
+  border: 1px dashed var(--color-warning);
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* —— 右下角二维码：扫码回到实时网页 —— */
+.daily-qrcode {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px 6px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  z-index: 999;
+  line-height: 1.4;
+}
+.daily-qrcode__img,
+.daily-qrcode canvas,
+.daily-qrcode img {
+  display: block;
+  margin: 0 auto;
+}
+.daily-qrcode__caption {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+}
+
+/* —— 打印 / PDF —— */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+@media print {
+  .daily-toolbar, .sample-tag { display: none !important; }
+  /* 二维码在 PDF 中保留：手机可长按扫描、跳回实时网页 */
+  .daily-qrcode { display: block !important; box-shadow: none; }
+  html, body { background: #fff; margin: 0; padding: 0; }
+  .daily-page { margin: 0; box-shadow: none; padding: 8mm 13mm 10mm; }
+  .daily-section { page-break-inside: auto; margin-top: 10px; }
+  /* PDF 打印紧凑化：真数据 15+ 行时会溢出一页，表格/卡片字号压缩保证每章一页 */
+  .daily-head h1 { font-size: 20px; }
+  .daily-table { font-size: 11px; }
+  .daily-table th, .daily-table td { padding: 2px 6px; }
+  .daily-table .ict-chip { padding: 0 5px; font-size: 10px; }
+  .stat-card { padding: 6px 10px; }
+  .stat-card .stat-value { font-size: 20px; }
+  .top-list li { padding: 2px 0; }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}

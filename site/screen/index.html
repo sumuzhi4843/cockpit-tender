@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>盐城政企招投标监控中心</title>
+  <link rel="stylesheet" href="css/screen.css" />
+</head>
+<body>
+  <div id="stage">
+
+    <!-- 顶栏 -->
+    <header class="header">
+      <div class="title-box">
+        <div class="cn">盐城政企招投标监控中心</div>
+        <div class="en">Government &amp; Enterprise Tender Monitoring Center</div>
+      </div>
+      <div class="right">
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="date-line" id="date-line">—</div>
+        <div class="meta-line">
+          <span id="data-updated">数据更新：—</span>
+          <span id="kpi-note"></span>
+          <span><i class="status-dot" id="status-dot"></i><span id="status-text">加载中</span></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI 行 -->
+    <section class="kpi-row">
+      <div class="kpi">
+        <div class="label">项目总数</div>
+        <div class="value" id="kpi-total">—</div>
+        <div class="sub">项目口径 · 政府采购</div>
+      </div>
+      <div class="kpi accent">
+        <div class="label">今日新增项目</div>
+        <div class="value" id="kpi-today">—</div>
+        <div class="sub">按首次收录日期</div>
+      </div>
+      <div class="kpi teal">
+        <div class="label">近 30 天新增</div>
+        <div class="value" id="kpi-30d">—</div>
+        <div class="sub">持续收录中</div>
+      </div>
+      <div class="kpi green">
+        <div class="label">已披露预算金额</div>
+        <div class="value"><span id="kpi-budget">—</span><span class="unit" id="kpi-budget-unit"></span></div>
+        <div class="sub" id="kpi-budget-sub"></div>
+      </div>
+      <div class="kpi">
+        <div class="label">ICT 项目</div>
+        <div class="value" id="kpi-ict">—</div>
+        <div class="sub" id="kpi-ict-sub"></div>
+      </div>
+    </section>
+
+    <!-- 主区三列 -->
+    <section class="main">
+      <!-- 左列 -->
+      <div class="col">
+        <div class="card" style="flex:1 1 auto;">
+          <div class="card-hd">区县项目排行 <span class="hint">项目口径 · 未识别不上图</span></div>
+          <div class="chart" id="chart-district"></div>
+        </div>
+        <div class="card" style="flex:none;height:300px;">
+          <div class="card-hd">行业分布 Top 8</div>
+          <div class="chart" id="chart-industry"></div>
+          <div class="foot-note" id="industry-note"></div>
+        </div>
+      </div>
+
+      <!-- 中央地图 -->
+      <div class="col">
+        <div class="card map-card" style="flex:1 1 auto;">
+          <div class="card-hd">盐城市项目分布 <span class="hint">颜色 = 项目数量</span></div>
+          <div class="chart" id="chart-map"></div>
+          <div class="map-caption">注：盐南、经开为功能区，市本级为市直单位项目，均以标签标注；「未识别」项目不计入地图。</div>
+        </div>
+      </div>
+
+      <!-- 右列 -->
+      <div class="col">
+        <div class="card" style="flex:none;height:240px;">
+          <div class="card-hd">近 30 天趋势</div>
+          <div class="chart" id="chart-trend"></div>
+        </div>
+        <div class="card" style="flex:1 1 auto;">
+          <div class="card-hd">即将开标（未来 7 天） <span class="hint" id="upcoming-hint"></span></div>
+          <div class="upcoming-list" id="upcoming-list"></div>
+        </div>
+        <div class="card" style="flex:none;height:160px;">
+          <div class="card-hd">项目阶段分布</div>
+          <div class="chart" id="chart-stage"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部公告流（公告为辅） -->
+    <section class="notice-bar">
+      <div class="card-hd">最新公告动态 <span class="hint">公告辅口径 · 每 7 秒轮换</span></div>
+      <div class="notice-rows">
+        <div class="notice-row" id="notice-row-1"></div>
+        <div class="notice-row" id="notice-row-2"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="vendor/echarts.min.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/screen.js"></script>
+</body>
+</html>

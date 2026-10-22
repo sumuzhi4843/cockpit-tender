@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>政企 · AI 驾驶舱</title>
+  <meta name="description" content="政企 AI 驾驶舱">
+  <!-- 2026-09-08 第三批：favicon（消 /favicon.ico 404 噪声） -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/kpi.css">
+  <link rel="stylesheet" href="css/panel.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tabs.css">
+  <!-- 各板块独立样式（2026-08-09 模块化：板块自带 CSS，新增板块加一行即可） -->
+  <link rel="stylesheet" href="css/tender.css">
+  <link rel="stylesheet" href="css/foldable.css">
+  <!-- 2026-09-09 A1：echarts 从首页移除（死重 1MB/传输 336KB，首页图表为
+       自绘 SVG 饼图，零消费；大屏 /screen 有独立 vendor 副本）。 -->
+</head>
+<body>
+  <div class="cockpit">
+
+    <!-- ===== 顶部栏（含 Skills / Token 用量，2026-08-06）===== -->
+    <header class="topbar">
+      
+      <!-- ===== 功能标签栏（2026-09-06：从独立一行移入顶栏标题后，风格与顶栏统一）===== -->
+      <nav class="tabs" id="tabs" aria-label="板块切换"></nav>
+      <div class="topbar__meta">
+        <!-- 2026-09-23 P2.2：≤400px 折叠"监控大屏"为仅 emoji；拆 span 让 CSS 可独立隐藏文字（保留 title 提示可访问性） -->
+        <a class="topbar__screen-link" href="screen/" target="_blank" rel="noopener" title="打开监控大屏（新窗口）"><span class="topbar__screen-link-emoji" aria-hidden="true">📊</span><span class="topbar__screen-link-text">监控大屏</span></a>
+        <!-- 2026-09-23：删「📋 日报」下拉历史清单，仅保留最新日报直链（保证一份常态更新） -->
+        <a class="topbar__screen-link" href="/daily/latest.html" target="_blank" rel="noopener" title="打开最新日报（新窗口）">📋 日报</a>
+        <span class="topbar__time" id="now">—</span>
+        <div class="topbar__user-menu" id="topbar-user-menu">
+          <button type="button" class="topbar__user" id="topbar-user" title="当前登录账号，点击展开菜单" aria-haspopup="menu" aria-expanded="false" aria-controls="topbar-dropdown">
+            👤 <b id="topbar-user-name">—</b>
+            <!-- 2026-09-23：账号-区县标签徽标 -->
+            <span id="topbar-user-tag" class="topbar__user-tag" hidden></span>
+            <span class="topbar__caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="topbar__dropdown" id="topbar-dropdown" role="menu" aria-labelledby="topbar-user" hidden>
+            <div class="topbar__dropdown-head">
+              <span class="topbar__dropdown-label">当前账号</span>
+              <span class="topbar__dropdown-name" id="topbar-dropdown-name">—</span>
+            </div>
+            <div class="topbar__dropdown-stats" id="topbar-dropdown-stats">
+              <span class="topbar__dropdown-stat" title="待投标收藏数">
+                <span class="topbar__dropdown-icon">📋</span>
+                <span>待投标</span>
+                <b id="topbar-stat-tender">0</b>
+              </span>
+              <span class="topbar__dropdown-stat" title="代挂网收藏数">
+                <span class="topbar__dropdown-icon">🌐</span>
+                <span>代挂网</span>
+                <b id="topbar-stat-intention">0</b>
+              </span>
+            </div>
+            <div class="topbar__dropdown-sep" role="separator"></div>
+            <button type="button" class="topbar__dropdown-item" id="topbar-switch" role="menuitem" title="切换账号将清 nginx Basic Auth 凭据缓存">
+              <span class="topbar__dropdown-icon">🔁</span>
+              <span>切换账号</span>
+            </button>
+            <button type="button" class="topbar__dropdown-item topbar__dropdown-item--danger" id="topbar-logout" role="menuitem" title="退出登录并清 nginx Basic Auth 凭据缓存">
+              <span class="topbar__dropdown-icon">🚪</span>
+              <span>退出登录</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== 板块挂载区（由 App 生成各 tab-content + panel__body）===== -->
+    <div id="app-mount"></div>
+
+  </div>
+
+  <!-- ===== JS（顺序：框架 → 工具 → 各板块模块 → 入口）=====
+       2026-09-09 A2：除 auth 外全部 defer——保持文档相对顺序，不再阻塞
+       HTML 解析；auth.js 必须同步（登录守卫需在业务 JS 前生效）。 -->
+  <script src="js/auth.js"></script>
+  <!-- 2026-09-23：账号 → 区县标签（同步脚本，在 tender.js 之前加载） -->
+  <script src="js/user_tags.js"></script>
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/app.js"></script>
+  <!-- 2026-09-29 ESM 拆分：招投标板块由单文件 IIFE 改为 js/tender/ 模块群（真源 tender/frontend/tender/） -->
+  <script type="module" src="js/tender/main.js"></script>
+  <script defer src="js/foldable.js"></script>
+  <script defer src="js/main.js"></script>
+</body>
+</html>

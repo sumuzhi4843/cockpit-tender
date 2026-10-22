@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 · 政企 AI 驾驶舱</title>
+  <!-- 2026-09-08 第三批：favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/reset.css">
+  <style>
+    :root {
+      --primary: #00467f;
+      --primary-dark: #003a6b;
+      --primary-light: #1976d2;
+      --accent: #e60012;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --bg-soft: #eef2f7;
+      --radius: 10px;
+      --shadow: 0 20px 60px rgba(0, 45, 90, 0.25);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #003a6b 0%, #00467f 45%, #1976d2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text);
+    }
+    .login-wrap {
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 40px 36px 32px;
+      text-align: center;
+    }
+    .login-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #fff;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 20px rgba(0, 70, 127, 0.35);
+    }
+    .login-title {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0 0 4px;
+    }
+    .login-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 28px;
+    }
+    .login-field {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+    .login-field label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .login-field input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fafbfc;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .login-field input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+      background: #fff;
+    }
+    .login-remember {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--muted);
+      margin: 4px 0 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .login-remember input {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .login-btn {
+      width: 100%;
+      height: 46px;
+      border: none;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      box-shadow: 0 6px 16px rgba(0, 70, 127, 0.3);
+    }
+    .login-btn:hover { opacity: .92; }
+    .login-btn:active { transform: translateY(1px); }
+    .login-btn:disabled { opacity: .6; cursor: not-allowed; }
+    .login-error {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 9px 12px;
+      margin-top: 14px;
+      text-align: left;
+    }
+    .login-foot {
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255,255,255,.7);
+      margin-top: 18px;
+    }
+    /* 2026-09-10：退出登录后的提示条 */
+    .login-bye {
+      margin: 12px 0 2px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">📊</div>
+      <h1 class="login-title">政企 · AI 驾驶舱</h1>
+      <p class="login-sub">请登录后访问</p>
+      <div class="login-bye" id="login-bye" hidden>✓ 已安全退出，请重新登录</div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="login-field">
+          <label for="login-user">账号</label>
+          <input type="text" id="login-user" placeholder="请输入账号" autocomplete="username" autofocus>
+        </div>
+        <div class="login-field">
+          <label for="login-pass">密码</label>
+          <input type="password" id="login-pass" placeholder="请输入密码" autocomplete="current-password">
+        </div>
+        <label class="login-remember">
+          <input type="checkbox" id="login-remember" checked> 记住我（7 天内免登录）
+        </label>
+        <button type="submit" class="login-btn" id="login-btn">
+          <span class="login-btn__text">登 录</span>
+        </button>
+        <div class="login-error" id="login-error"></div>
+      </form>
+    </div>
+    <div class="login-foot">内部系统 · 仅供授权人员使用</div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    /* 2026-09-10：退出登录提示。main.js 退出后跳 /login.html?bye=1；
+       这里只做「显示提示 + 清掉 URL 参数」，不参与任何认证判断。 */
+    (function () {
+      try {
+        if (/[?&]bye=1(&|$)/.test(location.search)) {
+          var el = document.getElementById('login-bye');
+          if (el) el.hidden = false;
+          if (window.history && history.replaceState) history.replaceState(null, '', location.pathname);
+        }
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

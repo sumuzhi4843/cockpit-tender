@@ -1,0 +1,91 @@
+221.231.11.22:
+  delay_s: 1.0
+  batch_size: 30
+  batch_pause_s: 5.0
+  max_per_session: 200
+  captcha_markers: []
+221.231.11.22:8099:
+  delay_s: 1.0
+  batch_size: 30
+  batch_pause_s: 5.0
+  max_per_session: 200
+  captcha_markers: []
+www.ycdfjt.com:
+  delay_s: 1.0
+  batch_size: 30
+  batch_pause_s: 5.0
+  max_per_session: 200
+  captcha_markers: []
+www.ycdsjt.cn:
+  delay_s: 1.0
+  batch_size: 30
+  batch_pause_s: 5.0
+  max_per_session: 200
+  captcha_markers: []
+ccgp-jiangsu.gov.cn:
+  delay_s: 2.0
+  batch_size: 10
+  batch_pause_s: 30.0
+  max_per_session: 100
+  captcha_markers:
+  - 访问过于频繁
+  - 请输入验证码
+  - 访问被拒绝
+  - verify
+  - captcha
+jszwfw.gov.cn:
+  delay_s: 2.5
+  batch_size: 10
+  batch_pause_s: 30.0
+  max_per_session: 100
+  captcha_markers:
+  - 访问被拒绝
+  - 请稍后再试
+  - verify
+  - captcha
+  - challenge
+ycggzy.jszwfw.gov.cn:
+  delay_s: 2.5
+  batch_size: 10
+  batch_pause_s: 30.0
+  max_per_session: 100
+  captcha_markers:
+  - 访问被拒绝
+  - 请稍后再试
+  - verify
+czj.yancheng.gov.cn:
+  delay_s: 2.0
+  batch_size: 20
+  batch_pause_s: 15.0
+  max_per_session: 200
+  captcha_markers:
+  - 访问被拒绝
+  - 请输入验证码
+cofcoec.com:
+  delay_s: 3.0
+  batch_size: 5
+  batch_pause_s: 60.0
+  max_per_session: 30
+  captcha_markers:
+  - rate limit
+  - too many requests
+  - forbidden
+  - verify
+  - challenge
+www.yancheng.gov.cn:
+  delay_s: 2.0
+  batch_size: 20
+  batch_pause_s: 15.0
+  max_per_session: 200
+  captcha_markers: []
+www.ccgp.gov.cn:
+  delay_s: 2.0
+  batch_size: 10
+  batch_pause_s: 30.0
+  max_per_session: 700
+  captcha_markers:
+  - 访问过于频繁
+  - 请输入验证码
+  - 访问被拒绝
+  - verify
+  - captcha

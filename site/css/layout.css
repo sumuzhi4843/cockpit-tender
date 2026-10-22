@@ -1,0 +1,406 @@
+/* ====== 整体布局 ====== */
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+.cockpit {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: var(--gap-md);
+}
+
+/* 2026-09-20 第二波 D：全局键盘焦点兜底（组件自带更具体的 focus-visible 规则会覆盖此条） */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+/* —— 顶部栏（2026-08-07 紧凑化）—— */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px var(--gap-md);
+  margin-bottom: 12px;
+  /* 2026-09-20 第一波（移动蓝主题）：深→浅 135° 渐变替白底+左色条 */
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 70, 127, .15);
+}
+
+/* 2026-09-21 第二波 B：移动端顶栏紧凑化（删 h1.title 后更明显） */
+@media (max-width: 768px) {
+  .topbar { padding: 8px 12px; row-gap: 4px; }
+  .topbar__meta { gap: 8px; }
+  .topbar__screen-link { padding: 2px 8px; font-size: 11px; }
+  .topbar__time { font-size: 12px; }
+  .topbar__user { padding: 2px 4px 2px 8px; font-size: 12px; }
+}
+
+
+
+.topbar__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, .8);
+  /* 2026-09-06：tabs 移入标题旁后，meta 改为 auto 推到最右，让 title+tabs 自然成组靠左 */
+  margin-left: auto;
+}
+
+.topbar__time {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 2026-09-20 删除：顶栏「📢 更新内容」按钮及其变体（.topbar__changelog*）已下线 */
+/* 「📊 监控大屏」入口（曾复用 .topbar__changelog 样式；2026-09-20 独立出来，保持原 pill 外观） */
+.topbar__screen-link {
+  appearance: none;
+  border: 1px solid #fff;
+  background: #fff;
+  color: var(--color-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.topbar__screen-link:hover {
+  background: rgba(255, 255, 255, .18);
+  border-color: rgba(255, 255, 255, .8);
+  color: #fff;
+}
+.topbar__screen-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, .9);
+  outline-offset: 2px;
+}
+
+/* 2026-09-20 删除：顶栏「🧩 Skills / 💬 Tokens」统计项及对应 divider（无用占位元素） */
+
+/* 顶部栏当前账号 chip + 下拉菜单（2026-08-19） */
+.topbar__user-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.topbar__user {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  background: #fff;
+  color: var(--color-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  padding: 2px 4px 2px 10px;
+  border-radius: 999px;
+  margin-left: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background var(--transition);
+}
+.topbar__user:hover { background: rgba(255, 255, 255, .85); }
+.topbar__user[aria-expanded="true"] {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+.topbar__user:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, .9);
+  outline-offset: 2px;
+}
+.topbar__user b {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+.topbar__caret {
+  font-size: 9px;
+  opacity: 0.7;
+  transition: transform var(--transition);
+  display: inline-block;
+}
+.topbar__user[aria-expanded="true"] .topbar__caret { transform: rotate(180deg); }
+
+/* 2026-09-23：账号-区县徽标（按账号定位 / 默认全部） */
+.topbar__user-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+.topbar__user-tag--located {
+  background: rgba(0, 70, 127, 0.12);
+  color: var(--color-primary, #00467f);
+}
+.topbar__user-tag--default {
+  background: rgba(107, 114, 128, 0.12);
+  color: var(--color-text-muted, #6b7280);
+  font-weight: 500;
+}
+
+/* 下拉面板 */
+.topbar__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  max-width: 80vw;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  z-index: 200;
+  font-family: var(--font-family);
+  /* 2026-09-20 顶栏反色后防继承：白卡片内统一恢复深色正文 */
+  color: var(--color-text);
+}
+.topbar__dropdown[hidden] { display: none; }
+/* 下拉箭头（可选顶部小三角） */
+.topbar__dropdown::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 14px;
+  width: 10px;
+  height: 10px;
+  background: var(--color-card);
+  border-top: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+  transform: rotate(45deg);
+}
+
+.topbar__dropdown-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 12px;
+}
+.topbar__dropdown-label {
+  font-size: 11px;
+  color: var(--color-text-light);
+}
+.topbar__dropdown-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+.topbar__dropdown-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px 10px;
+}
+.topbar__dropdown-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.topbar__dropdown-stat b {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-bg-soft);
+  padding: 1px 8px;
+  border-radius: 999px;
+  min-width: 24px;
+  text-align: center;
+}
+.topbar__dropdown-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.topbar__dropdown-sep {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0 6px;
+}
+
+.topbar__dropdown-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+.topbar__dropdown-item:hover { background: var(--color-bg-soft); }
+.topbar__dropdown-item:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: -2px;
+}
+.topbar__dropdown-item--danger { color: var(--color-danger); }
+.topbar__dropdown-item--danger:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--color-card));
+  color: var(--color-danger);
+}
+
+/* —— 底部（2026-08-09 已删：维护手册按钮移除，footer 无内容）—— */
+/* 2026-09-17 已删：版本徽标移除（changelog.js 同步清掉渲染逻辑） */
+
+/* ====== 移动端（≤768px）====== */
+@media (max-width: 768px) {
+  .cockpit {
+    padding: var(--gap-sm);
+    padding-bottom: calc(var(--gap-sm) + env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    margin-bottom: 8px;
+    /* 2026-09-06：tabs 移入顶栏后，移动端换行布局（tabs 独占第二行） */
+    flex-wrap: wrap;
+  }
+
+  .topbar__meta {
+    margin-left: auto;
+    flex-shrink: 1;
+    min-width: 0;
+    font-size: var(--font-size-xs);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .topbar__time {
+    font-size: var(--font-size-xs);
+  }
+
+  /* 2026-08-07：手机端面板内边距收紧 */
+  .panel__body {
+    padding: 10px;
+  }
+
+  .panel__head {
+    padding: 8px 10px;
+  }
+}
+
+/* ============================================
+ * 2026-08-18 · 移动端弹性缩放 v3（clamp 自动适配 360~430）
+ * 仅对 ≤768px 生效；桌面端零影响。基准 390px。
+ * ============================================ */
+@media (max-width: 768px) {
+  .cockpit {
+    padding: clamp(6px, 1.8vw, 10px);
+    padding-bottom: calc(clamp(6px, 1.8vw, 10px) + env(safe-area-inset-bottom));
+  }
+
+  /* 顶部栏：紧凑 + 字号随宽缩放
+   * 2026-09-23 P0.1：覆盖桌面 space-between —— 移动端用 flex-start + title 右推 meta，
+   * 标题不再因"单元素独占一行"被 justify-content 居中；同 row 排开避免日期/用户菜单被挤换行。 */
+  .topbar {
+    padding: clamp(6px, 1.8vw, 10px) clamp(8px, 2.4vw, 14px);
+    margin-bottom: clamp(6px, 1.6vw, 10px);
+    gap: clamp(4px, 1.2vw, 8px);
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+  .topbar__meta {
+    gap: clamp(4px, 1.2vw, 8px);
+    margin-left: 0;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .topbar__time { font-size: clamp(11px, 2.8vw, 13px); }
+  .topbar__user { font-size: clamp(11px, 2.8vw, 13px); padding: 2px 6px; }
+  /* 2026-09-23 P0.2：≤480px 把日期格式缩成 MM-DD，避免 "2026年09月23日" 在窄屏被强制换行 */
+  .topbar__time {
+    font-size: clamp(11px, 2.8vw, 13px);
+    white-space: nowrap;
+  }
+  .topbar__dropdown { min-width: clamp(180px, 60vw, 220px); }
+  .topbar__dropdown-item { font-size: clamp(12px, 3vw, 14px); padding: clamp(7px, 2vw, 10px) clamp(10px, 3vw, 14px); }
+
+  /* 面板内边距：随宽缩放（panel.css 已加同规则，此处留作冗余备份） */
+}
+
+/* 2026-09-23 P0.1 补充：≤420px 允许 topbar 换行 —— 极窄屏（iPhone SE 375 / 14 390 / Galaxy S8 360）
+   同一行排不下 title+meta，会把 yankai 用户菜单截断。允许 wrap 后：title row 1 左对齐，meta row 2 完整可见。
+   ≥421px 仍保持 nowrap（iPhone 14 Pro Max 430+ 一行排得开）。 */
+@media (max-width: 420px) {
+  .topbar {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  /* 2026-09-23 P2.2：≤400px 把"📊 监控大屏"折叠成仅 emoji（文字占 4~5 个汉字宽度 ≈35px，省出空间给 yankai） */
+  .topbar__screen-link-text { display: none; }
+  .topbar__screen-link { padding: 3px 8px; }
+}
+
+/* ≥481px 横屏/中大屏：内容略宽裕（panel.css 已加） */
+
+/* ============================================
+ * 2026-08-18 v4 · 平板端布局骨架（768~1365）
+ * - 顶部栏/面板/容器 调整为平板风格
+ * - 宽整理：间距宽松、信息分块清晰
+ * ============================================ */
+
+/* —— 平板竖屏 / 小折叠屏展开（768~1024） —— */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .cockpit {
+    padding: clamp(12px, 1.8vw, 18px);
+    padding-bottom: calc(clamp(12px, 1.8vw, 18px) + env(safe-area-inset-bottom));
+  }
+  .topbar {
+    padding: clamp(10px, 1.6vw, 14px) clamp(14px, 2.2vw, 20px);
+    margin-bottom: clamp(10px, 1.6vw, 14px);
+    gap: clamp(8px, 1.4vw, 14px);
+  }
+  
+  .topbar__meta { gap: clamp(6px, 1vw, 10px); }
+  .topbar__time { font-size: clamp(12px, 1.6vw, 14px); }
+}
+
+/* —— 平板横屏 / 小桌面（1025~1365） —— */
+@media (min-width: 1025px) and (max-width: 1365px) {
+  .cockpit {
+    padding: clamp(14px, 1.4vw, 20px);
+    padding-bottom: calc(clamp(14px, 1.4vw, 20px) + env(safe-area-inset-bottom));
+  }
+  .topbar {
+    padding: clamp(10px, 1.2vw, 14px) clamp(16px, 1.6vw, 24px);
+    margin-bottom: clamp(10px, 1.2vw, 16px);
+  }
+  
+  .topbar__time { font-size: clamp(12px, 1.2vw, 14px); }
+}
